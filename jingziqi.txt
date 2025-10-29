@@ -1,0 +1,186 @@
+varlist m 9
+var win 1
+var howwin 0
+var l 0
+var i 0
+var c 1
+var s 0
+var z 0
+var wh1 1
+
+put wh1 1
+put z 0
+while wh1
+
+printi z
+prints |
+is s z = 2
+if s
+prints ^-----^
+}
+is s z = 5
+if s
+prints ^-----^
+}
+is s z = 8
+if s
+prints ^
+}
+cont z z + 1
+is s z = 9
+if s
+put wh1 0
+}
+}
+
+prints ==Coordinate number==^
+while win
+
+prints ^
+put wh1 1
+put z 0
+while wh1
+getlist l m z
+is s l = 0
+if s
+prints -|
+}
+is s l = 1
+if s
+prints X|
+}
+is s l = 2
+if s
+prints O|
+}
+is s z = 2
+if s
+prints ^------^
+}
+is s z = 5
+if s
+prints ^------^
+}
+is s z = 8
+if s
+prints ^
+}
+cont z z + 1
+is s z = 9
+if s
+put wh1 0
+}
+}
+
+prints Enter coordinate number(1-9)
+inputi i
+setlist m i c
+is l c = 1
+
+if l
+put c 2
+}
+else
+put c 1
+}
+
+var tp 1
+put wh1 1
+
+while wh1
+var s1 0
+var s2 0
+var s3 0
+var le 0
+var wh 1
+put z 0
+while wh
+getlist le m z
+is s1 le = tp
+cont z z + 1
+getlist le m z
+is s2 le = tp
+cont z z + 1
+getlist le m z
+is s3 le = tp
+cont z z + 1
+is s s1 and s2
+is s s and s3
+if s
+copy tp howwin
+put win 0
+put wh 0
+}
+is s z = 9
+if s
+put wh 0
+}
+}
+put wh 1
+put z 0
+
+while wh
+getlist le m z
+is s1 le = tp
+cont z z + 3
+getlist le m z
+is s2 le = tp
+cont z z + 3
+getlist le m z
+is s3 le = tp
+cont z z + 3
+is s s1 and s2
+is s s and s3
+if s
+copy tp howwin
+put win 0
+put wh 0
+}
+is s z = 12
+if s
+put wh 0
+}
+cont z z - 8
+}
+
+getlist le m 0
+is s1 le = tp
+getlist le m 4
+is s2 le = tp
+getlist le m 8
+is s3 le = tp
+is s s1 and s2
+is s s and s3
+if s
+copy tp howwin
+put win 0
+}
+getlist le m 2
+is s1 le = tp
+getlist le m 4
+is s2 le = tp
+getlist le m 6
+is s3 le = tp
+is s s1 and s2
+is s s and s3
+if s
+copy tp howwin
+put win 0
+}
+
+cont tp tp + 1
+is s tp = 3
+if s
+put wh1 0
+}
+}
+
+}
+
+is s howwin = 1
+if s
+prints Player X is win!
+}
+else
+prints Player O is win!
+}
