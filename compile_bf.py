@@ -61,7 +61,7 @@ def dvarad(n):
         return int(n)
     else:
         if n not in varl:
-            print('     erro:not find var',n)
+            print('     erro:not find var',n,'line',ix)
             return [-1]
         return int(varl[n])
 def dlistad(n):
@@ -71,6 +71,8 @@ def dlistad(n):
         return (vlistl[n])
 
 def bput(wh,to):
+    if not isint(to):
+        print('erro:put[2] must is var',ix)
     txt=bset(dvarad(wh),int(to))+bgo(dvarad(wh))
     return txt
 
@@ -113,7 +115,11 @@ def findmorluse(wei):
 #int -128~128(0-255);;  >128:<0 [129=-128,255=-1]
 def bvar(name,num):
     if name in varl:
-        return bput(name,num)
+        if num=='rand':
+            txt=bgo(dvarad(name))+'[-]r'
+        else:
+            txt=bput(name,num)
+        return txt
     newad=findluse()
     varl[name]=newad
     luse.append(newad)
@@ -465,7 +471,7 @@ def bisinlist(to,v1,l1):
     vi=str(ix)+'in'
     txt=bput(to,0)
     txt+=dforstart(vi,l1,'forin'+vi)
-    txt+=difstart(':','ifin'+vi,[0,0,vi,'=',v1])
+    txt+=difstart(':','ifin'+vi,[vi,'=',v1])
     txt+=bput(to,1)
     txt+=difend('ifin'+vi)
     txt+=dforend('forin'+vi)
@@ -526,7 +532,7 @@ def bvarlist(name,long):
     global luse,bfi
     long=int(long)
     if long>250:
-        print('erro:too long list')
+        print('erro:too long list',ix)
         return -1
     ad=findmorluse(long+4)
     luse+=ad
@@ -543,7 +549,7 @@ def bgetlist(sto,ln,sw):
     luse.append(w)
     if isint(sw):
         if int(sw)>len(dlistad(ln)):
-            print('erro: out of list',sw)
+            print('erro: out of list',sw,'line',ix)
             return -1
         txt+=bput(w,int(sw))
     else:
@@ -566,7 +572,7 @@ def bsetlist(ln,sw,sv):
     kint=0
     if isint(sw):
         if int(sw)>len(dlistad(ln)):
-            print('erro: out of list',sw)
+            print('erro: out of list',sw,'line',ix)
             return -1
         y=findluse()
         luse.append(y)
@@ -598,13 +604,27 @@ def bputlist(name,lis):
     else:
         ko=lis.split(',')
     if len(ls)-4<len(ko):
-        print('erro:put size is bigger than list size')
+        print('erro:put size > list size','line',ix)
         return -1
     txt=''
     for t in range(len(ko)):
         txt+=bput(ls[t+4],int(ko[t]))
 
     return txt
+def bcopylist(wh,to):
+    txt=''
+    vi=str(ix)+'copylist'
+    it=len(dlistad(wh))-4
+    txt+=bvar(vi,0)
+    txt+=dforstart('i','range'+str(it),ix)
+    txt+=bgetlist(vi,wh,'i')
+    txt+=bsetlist(to,'i',vi)
+    txt+=dforend(ix)
+
+    bdelvar(vi)
+    return txt
+    
+    
 
 '--------list up------------'
 def difstart(x,ix,ax):
@@ -616,7 +636,7 @@ def difstart(x,ix,ax):
         oldx=findluse()
         luse.append(oldx)
         varl[(str(ix)+'if')]=[newx,oldx,1]
-        txt+=bis(oldx,ax[2],ax[3],ax[4])
+        txt+=bis(oldx,ax[0],ax[1],ax[2])
         txt+=bcopyvar(oldx,newx)
     else:
         varl[(str(ix)+'if')]=[newx,x,0]
@@ -628,7 +648,7 @@ def difstart(x,ix,ax):
 def delsestart(ix):
     global isifend
     if not isifend:
-        print('erro: not find if')
+        print('erro: not find if','line',ix)
         return -1
     x=isifend[1][1]
     
@@ -687,7 +707,8 @@ def dforstart(name,lt,ix):
     txt+=bvar(vwh,1)
     txt+=bvar(name,0)
     txt+=dwhilestart(vwh,'for'+str(ix))
-    txt+=bgetlist(name,lt,vi)
+    if lt[:5]!='range':
+        txt+=bgetlist(name,lt,vi)
     return txt
 
 def dforend(ix):
@@ -695,8 +716,13 @@ def dforend(ix):
     vwh='forwh'+str(ix)
     lt=varl[(str(ix)+'forlist')]
     txt=bcont(vi,vi,'+',1)
-    txt+=difstart(':','forif'+str(ix),
-                  [0,0,vi,'=',len(dlistad(lt[0]))-4])
+    if lt[0][:5]=='range':
+        txt+=bcopyvar(vi,lt[1])
+        txt+=difstart(':','forif'+str(ix),
+                  [vi,'=',int(lt[0][5:])])
+    else:
+        txt+=difstart(':','forif'+str(ix),
+                  [vi,'=',len(dlistad(lt[0]))-4])
     txt+=bput(vwh,0)
     txt+=difend('forif'+str(ix))
     txt+=dwhileend('for'+str(ix))
@@ -716,7 +742,9 @@ def dfuncstart(name):
     infunc=name
     return ''
 def dfuncend():
-    global infunc
+    global infunc,bfi
+    funcsave[infunc][0]+=bgo(funcsave[infunc][1])
+    bfi=funcsave[infunc][1]
     infunc=0
     return ''
 
@@ -745,6 +773,9 @@ def bprinti(varn):
     
     return txt
 
+def bprintio(varn):
+    txt=bgo(dvarad(varn))+'+'*48+'.'
+    return txt
 
 def bprints(s):
     d=findluse()
@@ -775,6 +806,7 @@ def bian(t,xian=0):
     vlistl={}
     luse=[0]
     isifend=[]
+    alllong=0
 
     infunc=0
     funcsave={}
@@ -793,6 +825,7 @@ def bian(t,xian=0):
         elif x[0]=='#':
             continue
         elif x[0]=='check':
+            print(bfi,'----',ix)
             txt='c'
             
         elif x[0]=='var':#name number
@@ -808,9 +841,13 @@ def bian(t,xian=0):
             txt=bgetlist(x[1],x[2],x[3])
         elif x[0]=='putlist':
             txt=bputlist(x[1],x[2])
+        elif x[0]=='copylist':
+            txt=bcopylist(x[1],x[2])
         
         elif x[0]=='printi':#var
             txt=bprinti(x[1])
+        elif x[0]=='printio':#var
+            txt=bprintio(x[1])
         elif x[0]=='prints':#str
             txt=bprints(' '.join(x[1:]))
         elif x[0]=='inputi':#tovar
@@ -825,7 +862,7 @@ def bian(t,xian=0):
             txt=bis(x[1],x[2],x[3],x[4])
 
         elif x[0]=='if':
-            txt=difstart(x[1],ix,x)
+            txt=difstart(x[1],ix,x[2:])
             ifl[ix]='if'
         elif x[0]=='else':
             txt=delsestart(ix)
@@ -865,11 +902,12 @@ def bian(t,xian=0):
 
         if txt==-1:return -1
         #print(txt)
-        if xian:print(x[0],':',bfi,luse,varl,txt,infunc)
+        if xian:print(x[0],':',bfi,luse,varl,txt,alllong)
         if infunc:
             funcsave[infunc][0]+=txt
         else:
             btxt.append(txt)
+            alllong+=len(txt)
         ix+=1
         
     batxt=''.join(btxt)
@@ -882,7 +920,7 @@ if __name__ == '__main__' :
     data=''''''
     if not data:
         try:
-            with open("jingziqi.txt", "r") as f:
+            with open("2048.txt", "r") as f:
                 data=f.read()
         except Exception as e:
             input(f"文件出错: {e}")
