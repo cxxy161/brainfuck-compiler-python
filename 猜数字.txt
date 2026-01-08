@@ -1,0 +1,32 @@
+var a1 0
+var a2 0
+var a3 0
+var a 99
+var b rand
+var t 0
+is t b > a
+if t
+cont b b - 100
+}
+var c 1
+var d 0
+prints guess number!0-99!
+while c
+prints ^guess:ten digit
+inputi a1
+prints guess:Units digit
+inputi a2
+cont a1 a1 * 10
+cont a a1 + a2
+is d a > b
+if d
+prints big
+}
+is d a < b
+if d
+prints small
+}
+is c a = b
+is c c not 0
+}
+prints right!
