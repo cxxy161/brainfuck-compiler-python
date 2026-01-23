@@ -32,15 +32,22 @@ def decomposition(n):
     
     return best_a, best_b, best_c
 
-def bset(ad,n):
-    txt=bgo(ad)+'[-]'
+def bset(ad,n,k=1):
+    txt=''
+    fu='+'
+    if k:
+        txt+=bgo(ad)+'[-]'
+    elif n<0:
+        fu='-'
+        n=-n
+        
     if n<15:
-        txt+='+'*n
+        txt+=fu*n
     else:
         d=findluse()
         a,b,c=decomposition(n)
         
-        txt+=bgo(d)+'[-]'+'+'*a+'[-'+bgo(ad)+'+'*b+bgo(d)+']'+bgo(ad)+'+'*c
+        txt+=bgo(d)+'[-]'+'+'*a+'[-'+bgo(ad)+fu*b+bgo(d)+']'+bgo(ad)+fu*c
         
         #print(a,b,c,a*b+c,n,txt)
     #txt+=bgo(ad)  
@@ -70,11 +77,12 @@ def dlistad(n):
     else:
         return (vlistl[n])
 
-def bput(wh,to):
+def bput(wh,to,add=1):
     if not isint(to):
         print('erro:put[2] must is var',ix)
-    txt=bset(dvarad(wh),int(to))+bgo(dvarad(wh))
+    txt=bset(dvarad(wh),int(to),add)#+bgo(dvarad(wh))
     return txt
+
 
 
 def findluse(i=-1):
@@ -754,8 +762,8 @@ def brun(name):
 
 def binputi(varn):
     ad=dvarad(varn)
-    
-    txt=bgo(ad)+'[-]'+','+'-'*48
+    d=findluse()
+    txt=bgo(ad)+'[-]'+',+'+bgo(d)+'+++++++['+bgo(ad)+'-------'+bgo(d)+'-]'
     return txt
 
 def bprinti(varn):
@@ -774,7 +782,17 @@ def bprinti(varn):
     return txt
 
 def bprintio(varn):
-    txt=bgo(dvarad(varn))+'+'*48+'.'
+    b=findluse()
+    luse.append(b)
+    d=findluse()
+    luse.append(d)
+    
+    txt=bcopyvar(varn,b)
+    txt+=''+bgo(d)+'+++++++['
+    txt+=bgo(b)+'+++++++'+bgo(d)+'-]'+bgo(b)+'-.'
+
+    luse.remove(b)
+    luse.remove(d)
     return txt
 
 def bprints(s):
@@ -783,12 +801,15 @@ def bprints(s):
     #print(d,luse)
     luse.append(d)
     txt=bgo(d)+'[-]'
+    last=0
     for t in s:
         if t=='^':
             l=10
         else:
             l=ord(t)
-        txt+=bput(d,l)+'.'
+        txt+=bput(d,l-last,0)+'.'
+        #txt+=bput(d,l)+'.'
+        last=l
 
     luse.remove(d)
     return txt
@@ -817,6 +838,8 @@ def bian(t,xian=0):
         if not xc:continue
 
         x=xc.split(' ')
+        x=[item for item in x if item.strip()]
+        
         txt=''
         checkif(x)
         
@@ -917,10 +940,16 @@ def bian(t,xian=0):
     return batxt
 
 if __name__ == '__main__' :
-    data=''''''
-    if not data:
+    data='''
+var a 0
+prints gvducbhsuvcbianh
+    var b 9
+    printio b
+
+'''
+    if 0:
         try:
-            with open("2048.txt", "r") as f:
+            with open("xayb.txt", "r") as f:
                 data=f.read()
         except Exception as e:
             input(f"文件出错: {e}")
